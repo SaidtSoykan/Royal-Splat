@@ -8,6 +8,7 @@ public class MapGenerator : MonoBehaviour
     public Transform tilePrefab;
     public Transform obstaclePrefab;
     public Transform boundryPrefab;
+    public Transform playerPrefab;
     public Vector2 mapSize;
     public Coord startPoint;
 
@@ -83,6 +84,8 @@ public class MapGenerator : MonoBehaviour
             }
         }
         Coord startCoord = new Coord((int)Random.Range(0,mapSize.x),(int)Random.Range(0,mapSize.y));
+        Vector3 playerPosition = new Vector3(-mapSize.x / 2 + 0.5f + startCoord.x, 0, -mapSize.y / 2 + 0.5f + startCoord.y);
+        Transform newPlayer = Instantiate(playerPrefab, playerPosition + Vector3.up * .5f, Quaternion.identity) as Transform;
         Debug.Log("Start point: (" + startCoord.x + "," + startCoord.y + ")");
         Coord upCoord = new Coord(startCoord.x, startCoord.y + 1);
         Coord rightCoord = new Coord(startCoord.x + 1, startCoord.y);
@@ -91,8 +94,10 @@ public class MapGenerator : MonoBehaviour
         moveableCoords.Add(startCoord);
         for(int i = 0; i < moveCount; i++)
         {
+            bool goingCorner = false;
             Debug.Log("Move Count: " + (i+1));
             List<int> ways = new List<int>();
+            Debug.Log("Start point: (" + startCoord.x + "," + startCoord.y + ")");
             if (IsPassed(upCoord))
             {
                 ways.Add(1);
@@ -108,6 +113,10 @@ public class MapGenerator : MonoBehaviour
             if (IsPassed(leftCoord))
             {
                 ways.Add(4);
+            }
+            if(ways.Count == 0)
+            {
+                break;
             }
             int way = ways[Random.Range(0, ways.Count)];
             if (way == 1)
@@ -127,21 +136,32 @@ public class MapGenerator : MonoBehaviour
                         moveDistance = 0;
                     }
                 }
-                else if (moveableCoords.Contains(ptrUp))
+                else if (moveableCoords.Contains(ptrUp) || keyTiles.Contains(ptrCoord))
                 {
                     moveDistance--;
                 }
-                if(moveDistance != 0)
+                Debug.Log("Move Distance: " + moveDistance);
+                if (moveDistance != 0)
                 {
-                    keyTiles.Add(downCoord);
+                    if (!keyTiles.Contains(downCoord))
+                    {
+                        keyTiles.Add(downCoord);
+                    }
                     for (int j = 0; j < moveDistance; j++)
                     {
                         moveableCoords.Add(upCoord);
+                        if (keyTiles.Contains(upCoord))
+                        {
+                            keyTiles.Remove(upCoord);
+                        }
                         Debug.Log("Added Coord: (" + upCoord.x + "," + upCoord.y + ")");
                         startCoord = upCoord;
                         upCoord = new Coord(upCoord.x, upCoord.y + 1);
                     }
-                    keyTiles.Add(upCoord);
+                    if (!keyTiles.Contains(upCoord))
+                    {
+                        keyTiles.Add(upCoord);
+                    }
                 }
             }
             if (way == 2)
@@ -161,27 +181,38 @@ public class MapGenerator : MonoBehaviour
                         moveDistance = 0;
                     }
                 }
-                else if (moveableCoords.Contains(ptrRight))
+                else if (moveableCoords.Contains(ptrRight) || keyTiles.Contains(ptrCoord))
                 {
                     moveDistance--;
                 }
+                Debug.Log("Move Distance: " + moveDistance);
                 if (moveDistance != 0)
                 {
-                    keyTiles.Add(leftCoord);
+                    if (!keyTiles.Contains(leftCoord))
+                    {
+                        keyTiles.Add(leftCoord);
+                    }
                     for (int j = 0; j < moveDistance; j++)
                     {
                         moveableCoords.Add(rightCoord);
+                        if (keyTiles.Contains(rightCoord))
+                        {
+                            keyTiles.Remove(rightCoord);
+                        }
                         Debug.Log("Added Coord: (" + rightCoord.x + "," + rightCoord.y + ")");
                         startCoord = rightCoord;
                         rightCoord = new Coord(rightCoord.x + 1, rightCoord.y);
                     }
-                    keyTiles.Add(rightCoord);
+                    if (!keyTiles.Contains(rightCoord))
+                    {
+                        keyTiles.Add(rightCoord);
+                    }
                 }
             }
             if (way == 3)
             {
                 Debug.Log("Down Chosen");
-                int moveDistance = Random.Range(1, startCoord.y + 1);
+                int moveDistance = Random.Range(1, startCoord.y);
                 Coord ptrCoord = new Coord(startCoord.x, startCoord.y - moveDistance);
                 Coord ptrDown = new Coord(ptrCoord.x, ptrCoord.y - 1);
                 if (moveableCoords.Contains(ptrCoord))
@@ -195,27 +226,38 @@ public class MapGenerator : MonoBehaviour
                         moveDistance = 0;
                     }
                 }
-                else if (moveableCoords.Contains(ptrDown))
+                else if (moveableCoords.Contains(ptrDown) || keyTiles.Contains(ptrCoord))
                 {
                     moveDistance--;
                 }
+                Debug.Log("Move Distance: " + moveDistance);
                 if (moveDistance != 0)
                 {
-                    keyTiles.Add(upCoord);
+                    if (!keyTiles.Contains(upCoord))
+                    {
+                        keyTiles.Add(upCoord);
+                    }
                     for (int j = 0; j < moveDistance; j++)
                     {
                         moveableCoords.Add(downCoord);
+                        if (keyTiles.Contains(downCoord))
+                        {
+                            keyTiles.Remove(downCoord);
+                        }
                         Debug.Log("Added Coord: (" + downCoord.x + "," + downCoord.y + ")");
                         startCoord = downCoord;
-                        downCoord = new Coord(downCoord.x, upCoord.y - 1);
+                        downCoord = new Coord(downCoord.x, downCoord.y - 1);
                     }
-                    keyTiles.Add(downCoord);
+                    if (!keyTiles.Contains(downCoord))
+                    {
+                        keyTiles.Add(downCoord);
+                    }
                 }
             }
             if(way == 4)
             {
                 Debug.Log("Left Chosen");
-                int moveDistance = Random.Range(1, startCoord.x + 1);
+                int moveDistance = Random.Range(1, startCoord.x);
                 Coord ptrCoord = new Coord(startCoord.x - moveDistance, startCoord.y);
                 Coord ptrLeft = new Coord(ptrCoord.x - 1, ptrCoord.y);
                 if (moveableCoords.Contains(ptrCoord))
@@ -229,26 +271,33 @@ public class MapGenerator : MonoBehaviour
                         moveDistance = 0;
                     }
                 }
-                else if (moveableCoords.Contains(ptrLeft))
+                else if (moveableCoords.Contains(ptrLeft) || keyTiles.Contains(ptrCoord))
                 {
                     moveDistance--;
                 }
+                Debug.Log("Move Distance: " + moveDistance);
                 if (moveDistance != 0)
                 {
-                    keyTiles.Add(rightCoord);
+                    if (!keyTiles.Contains(rightCoord))
+                    {
+                        keyTiles.Add(rightCoord);
+                    }
                     for (int j = 0; j < moveDistance; j++)
                     {
                         moveableCoords.Add(leftCoord);
+                        if (keyTiles.Contains(leftCoord))
+                        {
+                            keyTiles.Remove(leftCoord);
+                        }
                         Debug.Log("Added Coord: (" + leftCoord.x + "," + leftCoord.y + ")");
                         startCoord = leftCoord;
-                        leftCoord = new Coord(leftCoord.x, leftCoord.y + 1);
+                        leftCoord = new Coord(leftCoord.x - 1, leftCoord.y);
                     }
-                    keyTiles.Add(leftCoord);
+                    if (!keyTiles.Contains(leftCoord))
+                    {
+                        keyTiles.Add(leftCoord);
+                    }
                 }
-            }
-            if(way == 0)
-            {
-                break;
             }
             ways.Clear();
             upCoord = new Coord(startCoord.x, startCoord.y + 1);
@@ -275,7 +324,7 @@ public class MapGenerator : MonoBehaviour
     }
     public bool IsPassed(Coord passedTile)
     {
-        if (moveableCoords.Contains(passedTile) && keyTiles.Contains(passedTile))
+        if (moveableCoords.Contains(passedTile) || keyTiles.Contains(passedTile))
         {
             return false;
         }

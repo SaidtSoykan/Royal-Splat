@@ -200,7 +200,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 170623574}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 25, z: -3}
+  m_LocalPosition: {x: 0, y: 40, z: -3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -242,8 +242,10 @@ MonoBehaviour:
     type: 3}
   boundryPrefab: {fileID: 2089072710332128305, guid: 744c3e0d6d1002f4d8281887c42b80f2,
     type: 3}
-  mapSize: {x: 10, y: 10}
-  moveCount: 10
+  playerPrefab: {fileID: 5769684846545974308, guid: d65cb62455011024abeb600a6106a3cb,
+    type: 3}
+  mapSize: {x: 20, y: 20}
+  moveCount: 70
 --- !u!4 &516145069
 Transform:
   m_ObjectHideFlags: 0
