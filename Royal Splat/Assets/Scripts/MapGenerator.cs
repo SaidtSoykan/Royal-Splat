@@ -94,7 +94,6 @@ public class MapGenerator : MonoBehaviour
         moveableCoords.Add(startCoord);
         for(int i = 0; i < moveCount; i++)
         {
-            bool goingCorner = false;
             Debug.Log("Move Count: " + (i+1));
             List<int> ways = new List<int>();
             Debug.Log("Start point: (" + startCoord.x + "," + startCoord.y + ")");
