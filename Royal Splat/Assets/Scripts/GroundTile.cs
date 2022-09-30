@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GroundPiece : MonoBehaviour
+public class GroundTile : MonoBehaviour
 {
     public bool isColored = false;
     

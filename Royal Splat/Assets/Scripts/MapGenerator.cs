@@ -13,7 +13,7 @@ public class MapGenerator : MonoBehaviour
     public Coord startPoint;
 
     [Range(0, 1)]
-    public float percentOfEmptyTiles;
+    public float percentageOfEmptyTiles;
 
     public int moveCount;
     List<Coord> moveableCoords = new List<Coord>();
@@ -21,7 +21,7 @@ public class MapGenerator : MonoBehaviour
     List<Coord> keyTiles;
     void Start()
     {
-        while ((moveableCoords.Count/(mapSize.x*mapSize.y)) < percentOfEmptyTiles)
+        while ((moveableCoords.Count/(mapSize.x*mapSize.y)) < percentageOfEmptyTiles)
         {
             GenerateMap();
         }
@@ -39,27 +39,37 @@ public class MapGenerator : MonoBehaviour
                 allTileCoords.Add(new Coord(x, y));
             }
         }
-        string holderName = "Generated Map";
-        if (transform.Find(holderName))
+        string mapHolderName = "Generated Map";
+        string tileHolderName = "Tiles";
+        string boundryHolderName = "Boundries";
+        string obstacleHolderName = "Obstacles";
+        if (transform.Find(mapHolderName))
         {
-            DestroyImmediate(transform.Find(holderName).gameObject);
+            DestroyImmediate(transform.Find(mapHolderName).gameObject);
         }
-        Transform mapHolder = new GameObject(holderName).transform;
+        Transform mapHolder = new GameObject(mapHolderName).transform;
+        Transform tileHolder = new GameObject(tileHolderName).transform;
+        Transform boundryHolder = new GameObject(boundryHolderName).transform;
+        Transform obstacleHolder = new GameObject(obstacleHolderName).transform;
         mapHolder.parent = transform;
+        tileHolder.parent = mapHolder;
+        boundryHolder.parent = mapHolder;
+        obstacleHolder.parent = mapHolder;
         for (int x = 0; x < mapSize.x; x++)
         {
             for (int y = 0; y < mapSize.y; y++)
             {
-                Vector3 tilePosition = CoordToPosition(x, y);
+                Vector3 tilePosition = new Vector3(-mapSize.x / 2 + 0.5f + x, 0, -mapSize.y / 2 + 0.5f + y);
                 Transform newTile = Instantiate(tilePrefab, tilePosition, Quaternion.Euler(Vector3.right * 90)) as Transform;
-                newTile.name = "(" + x + "," + y + ")";
-                newTile.parent = mapHolder;
+                newTile.name = "Tile (" + x + "," + y + ")";
+                newTile.parent = tileHolder;
                 //obstacles for out of bounds
                 if (x == 0)
                 {
                     Vector3 boundryPosition = new Vector3(-mapSize.x / 2 + 0.5f + x - 1, 0, -mapSize.y / 2 + 0.5f + y);
                     Transform newBoundry = Instantiate(boundryPrefab, boundryPosition + Vector3.up * .5f, Quaternion.identity) as Transform;
-                    newBoundry.parent = mapHolder;
+                    newBoundry.parent = boundryHolder;
+                    newBoundry.name = "Boundry (" + (x - 1) + "," + y + ")";
                     Coord boundryCoords = new Coord(-1, y);
                     keyTiles.Add(boundryCoords);
                 }
@@ -67,7 +77,8 @@ public class MapGenerator : MonoBehaviour
                 {
                     Vector3 boundryPosition = new Vector3(-mapSize.x / 2 + 0.5f + x, 0, -mapSize.y / 2 + 0.5f + y - 1);
                     Transform newBoundry = Instantiate(boundryPrefab, boundryPosition + Vector3.up * .5f, Quaternion.identity) as Transform;
-                    newBoundry.parent = mapHolder;
+                    newBoundry.parent = boundryHolder;
+                    newBoundry.name = "Boundry (" + x + "," + (y - 1) + ")";
                     Coord boundryCoords = new Coord(x, -1);
                     keyTiles.Add(boundryCoords);
                 }
@@ -75,7 +86,8 @@ public class MapGenerator : MonoBehaviour
                 {
                     Vector3 boundryPosition = new Vector3(-mapSize.x / 2 + 0.5f + x + 1, 0, -mapSize.y / 2 + 0.5f + y);
                     Transform newBoundry = Instantiate(boundryPrefab, boundryPosition + Vector3.up * .5f, Quaternion.identity) as Transform;
-                    newBoundry.parent = mapHolder;
+                    newBoundry.parent = boundryHolder;
+                    newBoundry.name = "Boundry (" + (x + 1) + "," + y + ")";
                     Coord boundryCoords = new Coord((int)mapSize.x, y);
                     keyTiles.Add(boundryCoords);
                 }
@@ -83,7 +95,8 @@ public class MapGenerator : MonoBehaviour
                 {
                     Vector3 boundryPosition = new Vector3(-mapSize.x / 2 + 0.5f + x, 0, -mapSize.y / 2 + 0.5f + y + 1);
                     Transform newBoundry = Instantiate(boundryPrefab, boundryPosition + Vector3.up * .5f, Quaternion.identity) as Transform;
-                    newBoundry.parent = mapHolder;
+                    newBoundry.parent = boundryHolder;
+                    newBoundry.name = "Boundry (" + x + "," + (y + 1) + ")";
                     Coord boundryCoords = new Coord(x, (int)mapSize.y);
                     keyTiles.Add(boundryCoords);
                 }
@@ -93,7 +106,7 @@ public class MapGenerator : MonoBehaviour
         Vector3 playerPosition = new Vector3(-mapSize.x / 2 + 0.5f + startCoord.x, 0, -mapSize.y / 2 + 0.5f + startCoord.y);
         Transform newPlayer = Instantiate(playerPrefab, playerPosition + Vector3.up * .5f, Quaternion.identity) as Transform;
         newPlayer.parent = mapHolder;
-        Debug.Log("Start point: (" + startCoord.x + "," + startCoord.y + ")");
+        newPlayer.name = "Player Ball";
         Coord upCoord = new Coord(startCoord.x, startCoord.y + 1);
         Coord rightCoord = new Coord(startCoord.x + 1, startCoord.y);
         Coord downCoord = new Coord(startCoord.x, startCoord.y - 1);
@@ -101,9 +114,7 @@ public class MapGenerator : MonoBehaviour
         moveableCoords.Add(startCoord);
         for(int i = 0; i < moveCount; i++)
         {
-            Debug.Log("Move Count: " + (i+1));
             List<int> ways = new List<int>();
-            Debug.Log("Start point: (" + startCoord.x + "," + startCoord.y + ")");
             if (IsPassed(upCoord))
             {
                 ways.Add(1);
@@ -127,7 +138,12 @@ public class MapGenerator : MonoBehaviour
             int way = ways[Random.Range(0, ways.Count)];
             if (way == 1)
             {
-                Debug.Log("Up Chosen");
+                if(i == 0)
+                {
+                    keyTiles.Add(downCoord);
+                    keyTiles.Add(leftCoord);
+                    keyTiles.Add(rightCoord);
+                }
                 int k = 0;
                 Coord checkCoord = new Coord(startCoord.x, startCoord.y + 1);
                 while (!keyTiles.Contains(checkCoord))
@@ -153,7 +169,6 @@ public class MapGenerator : MonoBehaviour
                 {
                     moveDistance--;
                 }
-                Debug.Log("Move Distance: " + moveDistance);
                 if (moveDistance != 0)
                 {
                     if (!keyTiles.Contains(downCoord))
@@ -163,7 +178,6 @@ public class MapGenerator : MonoBehaviour
                     for (int j = 0; j < moveDistance; j++)
                     {
                         moveableCoords.Add(upCoord);
-                        Debug.Log("Added Coord: (" + upCoord.x + "," + upCoord.y + ")");
                         startCoord = upCoord;
                         upCoord = new Coord(upCoord.x, upCoord.y + 1);
                     }
@@ -175,7 +189,12 @@ public class MapGenerator : MonoBehaviour
             }
             if (way == 2)
             {
-                Debug.Log("Right Chosen");
+                if (i == 0)
+                {
+                    keyTiles.Add(downCoord);
+                    keyTiles.Add(leftCoord);
+                    keyTiles.Add(upCoord);
+                }
                 int k = 0;
                 Coord checkCoord = new Coord(startCoord.x + 1, startCoord.y);
                 while (!keyTiles.Contains(checkCoord))
@@ -201,7 +220,6 @@ public class MapGenerator : MonoBehaviour
                 {
                     moveDistance--;
                 }
-                Debug.Log("Move Distance: " + moveDistance);
                 if (moveDistance != 0)
                 {
                     if (!keyTiles.Contains(leftCoord))
@@ -211,7 +229,6 @@ public class MapGenerator : MonoBehaviour
                     for (int j = 0; j < moveDistance; j++)
                     {
                         moveableCoords.Add(rightCoord);
-                        Debug.Log("Added Coord: (" + rightCoord.x + "," + rightCoord.y + ")");
                         startCoord = rightCoord;
                         rightCoord = new Coord(rightCoord.x + 1, rightCoord.y);
                     }
@@ -223,7 +240,12 @@ public class MapGenerator : MonoBehaviour
             }
             if (way == 3)
             {
-                Debug.Log("Down Chosen");
+                if (i == 0)
+                {
+                    keyTiles.Add(upCoord);
+                    keyTiles.Add(leftCoord);
+                    keyTiles.Add(rightCoord);
+                }
                 int k = 0;
                 Coord checkCoord = new Coord(startCoord.x, startCoord.y - 1);
                 while (!keyTiles.Contains(checkCoord))
@@ -249,7 +271,6 @@ public class MapGenerator : MonoBehaviour
                 {
                     moveDistance--;
                 }
-                Debug.Log("Move Distance: " + moveDistance);
                 if (moveDistance != 0)
                 {
                     if (!keyTiles.Contains(upCoord))
@@ -259,7 +280,6 @@ public class MapGenerator : MonoBehaviour
                     for (int j = 0; j < moveDistance; j++)
                     {
                         moveableCoords.Add(downCoord);
-                        Debug.Log("Added Coord: (" + downCoord.x + "," + downCoord.y + ")");
                         startCoord = downCoord;
                         downCoord = new Coord(downCoord.x, downCoord.y - 1);
                     }
@@ -271,7 +291,12 @@ public class MapGenerator : MonoBehaviour
             }
             if(way == 4)
             {
-                Debug.Log("Left Chosen");
+                if (i == 0)
+                {
+                    keyTiles.Add(downCoord);
+                    keyTiles.Add(upCoord);
+                    keyTiles.Add(rightCoord);
+                }
                 int k = 0;
                 Coord checkCoord = new Coord(startCoord.x - 1, startCoord.y);
                 while (!keyTiles.Contains(checkCoord))
@@ -297,7 +322,6 @@ public class MapGenerator : MonoBehaviour
                 {
                     moveDistance--;
                 }
-                Debug.Log("Move Distance: " + moveDistance);
                 if (moveDistance != 0)
                 {
                     if (!keyTiles.Contains(rightCoord))
@@ -307,7 +331,6 @@ public class MapGenerator : MonoBehaviour
                     for (int j = 0; j < moveDistance; j++)
                     {
                         moveableCoords.Add(leftCoord);
-                        Debug.Log("Added Coord: (" + leftCoord.x + "," + leftCoord.y + ")");
                         startCoord = leftCoord;
                         leftCoord = new Coord(leftCoord.x - 1, leftCoord.y);
                     }
@@ -334,11 +357,12 @@ public class MapGenerator : MonoBehaviour
                     Coord _add = new Coord(comp.x, comp.y);
                     Vector3 obstaclePosition = new Vector3(-mapSize.x / 2 + 0.5f + _add.x, 0, -mapSize.y / 2 + 0.5f + _add.y);
                     Transform newObstacle = Instantiate(obstaclePrefab, obstaclePosition + Vector3.up * .5f, Quaternion.identity) as Transform;
-                    newObstacle.parent = mapHolder;
+                    newObstacle.parent = obstacleHolder;
+                    newObstacle.name = "Obstacle (" + x + "," + y + ")";
                 }
-                
             }
         }
+
     }
     public bool IsPassed(Coord passedTile)
     {
@@ -351,16 +375,10 @@ public class MapGenerator : MonoBehaviour
             return true;
         }
     }
-    Vector3 CoordToPosition(int x, int y)
-    {
-        return new Vector3(-mapSize.x / 2 + 0.5f + x, 0, -mapSize.y / 2 + 0.5f + y);
-    }
-
     public struct Coord
     {
         public int x;
         public int y;
-
         public Coord(int _x, int _y)
         {
             x = _x;

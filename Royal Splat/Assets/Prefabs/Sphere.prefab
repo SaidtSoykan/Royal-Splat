@@ -112,7 +112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rb: {fileID: 5548030319513612212}
-  speed: 15
+  speed: 20
   minSwipeRecognition: 500
 --- !u!54 &5548030319513612212
 Rigidbody:
