@@ -289,6 +289,7 @@ MonoBehaviour:
   playerPrefab: {fileID: 5769684846545974308, guid: d65cb62455011024abeb600a6106a3cb,
     type: 3}
   mapSize: {x: 20, y: 20}
+  percentOfEmptyTiles: 0.356
   moveCount: 70
 --- !u!4 &516145069
 Transform:

@@ -12,13 +12,19 @@ public class MapGenerator : MonoBehaviour
     public Vector2 mapSize;
     public Coord startPoint;
 
+    [Range(0, 1)]
+    public float percentOfEmptyTiles;
+
     public int moveCount;
-    List<Coord> moveableCoords;
+    List<Coord> moveableCoords = new List<Coord>();
     List<Coord> allTileCoords;
     List<Coord> keyTiles;
     void Start()
     {
-        GenerateMap();
+        while ((moveableCoords.Count/(mapSize.x*mapSize.y)) < percentOfEmptyTiles)
+        {
+            GenerateMap();
+        }
     }
     public void GenerateMap()
     {
@@ -86,6 +92,7 @@ public class MapGenerator : MonoBehaviour
         Coord startCoord = new Coord((int)Random.Range(0,mapSize.x),(int)Random.Range(0,mapSize.y));
         Vector3 playerPosition = new Vector3(-mapSize.x / 2 + 0.5f + startCoord.x, 0, -mapSize.y / 2 + 0.5f + startCoord.y);
         Transform newPlayer = Instantiate(playerPrefab, playerPosition + Vector3.up * .5f, Quaternion.identity) as Transform;
+        newPlayer.parent = mapHolder;
         Debug.Log("Start point: (" + startCoord.x + "," + startCoord.y + ")");
         Coord upCoord = new Coord(startCoord.x, startCoord.y + 1);
         Coord rightCoord = new Coord(startCoord.x + 1, startCoord.y);
@@ -121,7 +128,14 @@ public class MapGenerator : MonoBehaviour
             if (way == 1)
             {
                 Debug.Log("Up Chosen");
-                int moveDistance = Random.Range(1, (int)mapSize.y - startCoord.y - 1);
+                int k = 0;
+                Coord checkCoord = new Coord(startCoord.x, startCoord.y + 1);
+                while (!keyTiles.Contains(checkCoord))
+                {
+                    checkCoord = new Coord(checkCoord.x, checkCoord.y + 1);
+                    k++;
+                }
+                int moveDistance = Random.Range(1, k);
                 Coord ptrCoord = new Coord(startCoord.x, startCoord.y + moveDistance);
                 Coord ptrUp = new Coord(ptrCoord.x, ptrCoord.y + 1);
                 if (moveableCoords.Contains(ptrCoord))
@@ -149,10 +163,6 @@ public class MapGenerator : MonoBehaviour
                     for (int j = 0; j < moveDistance; j++)
                     {
                         moveableCoords.Add(upCoord);
-                        if (keyTiles.Contains(upCoord))
-                        {
-                            keyTiles.Remove(upCoord);
-                        }
                         Debug.Log("Added Coord: (" + upCoord.x + "," + upCoord.y + ")");
                         startCoord = upCoord;
                         upCoord = new Coord(upCoord.x, upCoord.y + 1);
@@ -166,7 +176,14 @@ public class MapGenerator : MonoBehaviour
             if (way == 2)
             {
                 Debug.Log("Right Chosen");
-                int moveDistance = Random.Range(1, (int)mapSize.x - startCoord.x - 1);
+                int k = 0;
+                Coord checkCoord = new Coord(startCoord.x + 1, startCoord.y);
+                while (!keyTiles.Contains(checkCoord))
+                {
+                    checkCoord = new Coord(checkCoord.x + 1, checkCoord.y);
+                    k++;
+                }
+                int moveDistance = Random.Range(1, k);
                 Coord ptrCoord = new Coord(startCoord.x + moveDistance, startCoord.y);
                 Coord ptrRight = new Coord(ptrCoord.x + 1, ptrCoord.y);
                 if (moveableCoords.Contains(ptrCoord))
@@ -194,10 +211,6 @@ public class MapGenerator : MonoBehaviour
                     for (int j = 0; j < moveDistance; j++)
                     {
                         moveableCoords.Add(rightCoord);
-                        if (keyTiles.Contains(rightCoord))
-                        {
-                            keyTiles.Remove(rightCoord);
-                        }
                         Debug.Log("Added Coord: (" + rightCoord.x + "," + rightCoord.y + ")");
                         startCoord = rightCoord;
                         rightCoord = new Coord(rightCoord.x + 1, rightCoord.y);
@@ -211,7 +224,14 @@ public class MapGenerator : MonoBehaviour
             if (way == 3)
             {
                 Debug.Log("Down Chosen");
-                int moveDistance = Random.Range(1, startCoord.y);
+                int k = 0;
+                Coord checkCoord = new Coord(startCoord.x, startCoord.y - 1);
+                while (!keyTiles.Contains(checkCoord))
+                {
+                    checkCoord = new Coord(checkCoord.x, checkCoord.y - 1);
+                    k++;
+                }
+                int moveDistance = Random.Range(1, k);
                 Coord ptrCoord = new Coord(startCoord.x, startCoord.y - moveDistance);
                 Coord ptrDown = new Coord(ptrCoord.x, ptrCoord.y - 1);
                 if (moveableCoords.Contains(ptrCoord))
@@ -239,10 +259,6 @@ public class MapGenerator : MonoBehaviour
                     for (int j = 0; j < moveDistance; j++)
                     {
                         moveableCoords.Add(downCoord);
-                        if (keyTiles.Contains(downCoord))
-                        {
-                            keyTiles.Remove(downCoord);
-                        }
                         Debug.Log("Added Coord: (" + downCoord.x + "," + downCoord.y + ")");
                         startCoord = downCoord;
                         downCoord = new Coord(downCoord.x, downCoord.y - 1);
@@ -256,7 +272,14 @@ public class MapGenerator : MonoBehaviour
             if(way == 4)
             {
                 Debug.Log("Left Chosen");
-                int moveDistance = Random.Range(1, startCoord.x);
+                int k = 0;
+                Coord checkCoord = new Coord(startCoord.x - 1, startCoord.y);
+                while (!keyTiles.Contains(checkCoord))
+                {
+                    checkCoord = new Coord(checkCoord.x - 1, checkCoord.y);
+                    k++;
+                }
+                int moveDistance = Random.Range(1, k);
                 Coord ptrCoord = new Coord(startCoord.x - moveDistance, startCoord.y);
                 Coord ptrLeft = new Coord(ptrCoord.x - 1, ptrCoord.y);
                 if (moveableCoords.Contains(ptrCoord))
@@ -284,10 +307,6 @@ public class MapGenerator : MonoBehaviour
                     for (int j = 0; j < moveDistance; j++)
                     {
                         moveableCoords.Add(leftCoord);
-                        if (keyTiles.Contains(leftCoord))
-                        {
-                            keyTiles.Remove(leftCoord);
-                        }
                         Debug.Log("Added Coord: (" + leftCoord.x + "," + leftCoord.y + ")");
                         startCoord = leftCoord;
                         leftCoord = new Coord(leftCoord.x - 1, leftCoord.y);
