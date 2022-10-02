@@ -5,30 +5,19 @@ using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
-    public Transform tilePrefab;
-    public Transform obstaclePrefab;
-    public Transform boundryPrefab;
-    public Transform playerPrefab;
-    public Vector2 mapSize;
-    public Coord startPoint;
+    private int moveCount;
+    private Vector2 mapSize;
 
-    [Range(0, 1)]
-    public float percentageOfEmptyTiles;
-
-    public int moveCount;
     List<Coord> moveableCoords = new List<Coord>();
     List<Coord> allTileCoords;
     List<Coord> keyTiles;
-    void Start()
+    public Transform GenerateMap(System.Random seed, Transform tilePrefab, Transform obstaclePrefab, Transform boundryPrefab, Transform playerPrefab, int levelNumber)
     {
-        while ((moveableCoords.Count/(mapSize.x*mapSize.y)) < percentageOfEmptyTiles)
-        {
-            GenerateMap();
-        }
-    }
-    public void GenerateMap()
-    {
-        startPoint = new Coord(0, 0);
+        mapSize.x = seed.Next(10, levelNumber + 10 - 1);
+        mapSize.y = seed.Next(10, levelNumber + 10 - 1);
+        Vector3 mapObjectPosition = new Vector3(0, 0, 0);
+        Transform mapObject = new GameObject("Map").transform;
+        mapObject.transform.position = mapObjectPosition;
         allTileCoords = new List<Coord>();
         moveableCoords = new List<Coord>();
         keyTiles = new List<Coord>();
@@ -39,10 +28,12 @@ public class MapGenerator : MonoBehaviour
                 allTileCoords.Add(new Coord(x, y));
             }
         }
+
         string mapHolderName = "Generated Map";
         string tileHolderName = "Tiles";
         string boundryHolderName = "Boundries";
         string obstacleHolderName = "Obstacles";
+
         if (transform.Find(mapHolderName))
         {
             DestroyImmediate(transform.Find(mapHolderName).gameObject);
@@ -51,7 +42,7 @@ public class MapGenerator : MonoBehaviour
         Transform tileHolder = new GameObject(tileHolderName).transform;
         Transform boundryHolder = new GameObject(boundryHolderName).transform;
         Transform obstacleHolder = new GameObject(obstacleHolderName).transform;
-        mapHolder.parent = transform;
+        mapHolder.parent = mapObject;
         tileHolder.parent = mapHolder;
         boundryHolder.parent = mapHolder;
         obstacleHolder.parent = mapHolder;
@@ -102,7 +93,7 @@ public class MapGenerator : MonoBehaviour
                 }
             }
         }
-        Coord startCoord = new Coord((int)Random.Range(0,mapSize.x),(int)Random.Range(0,mapSize.y));
+        Coord startCoord = new Coord(seed.Next(0,(int)mapSize.x),seed.Next(0,(int)mapSize.y));
         Vector3 playerPosition = new Vector3(-mapSize.x / 2 + 0.5f + startCoord.x, 0, -mapSize.y / 2 + 0.5f + startCoord.y);
         Transform newPlayer = Instantiate(playerPrefab, playerPosition + Vector3.up * .5f, Quaternion.identity) as Transform;
         newPlayer.parent = mapHolder;
@@ -112,6 +103,7 @@ public class MapGenerator : MonoBehaviour
         Coord downCoord = new Coord(startCoord.x, startCoord.y - 1);
         Coord leftCoord = new Coord(startCoord.x - 1, startCoord.y);
         moveableCoords.Add(startCoord);
+        moveCount = seed.Next(10,10+levelNumber*2);
         for(int i = 0; i < moveCount; i++)
         {
             List<int> ways = new List<int>();
@@ -135,7 +127,7 @@ public class MapGenerator : MonoBehaviour
             {
                 break;
             }
-            int way = ways[Random.Range(0, ways.Count)];
+            int way = ways[seed.Next(0, ways.Count)];
             if (way == 1)
             {
                 if(i == 0)
@@ -151,7 +143,7 @@ public class MapGenerator : MonoBehaviour
                     checkCoord = new Coord(checkCoord.x, checkCoord.y + 1);
                     k++;
                 }
-                int moveDistance = Random.Range(1, k);
+                int moveDistance = seed.Next(1, k);
                 Coord ptrCoord = new Coord(startCoord.x, startCoord.y + moveDistance);
                 Coord ptrUp = new Coord(ptrCoord.x, ptrCoord.y + 1);
                 if (moveableCoords.Contains(ptrCoord))
@@ -202,7 +194,7 @@ public class MapGenerator : MonoBehaviour
                     checkCoord = new Coord(checkCoord.x + 1, checkCoord.y);
                     k++;
                 }
-                int moveDistance = Random.Range(1, k);
+                int moveDistance = seed.Next(1, k);
                 Coord ptrCoord = new Coord(startCoord.x + moveDistance, startCoord.y);
                 Coord ptrRight = new Coord(ptrCoord.x + 1, ptrCoord.y);
                 if (moveableCoords.Contains(ptrCoord))
@@ -253,7 +245,7 @@ public class MapGenerator : MonoBehaviour
                     checkCoord = new Coord(checkCoord.x, checkCoord.y - 1);
                     k++;
                 }
-                int moveDistance = Random.Range(1, k);
+                int moveDistance = seed.Next(1, k);
                 Coord ptrCoord = new Coord(startCoord.x, startCoord.y - moveDistance);
                 Coord ptrDown = new Coord(ptrCoord.x, ptrCoord.y - 1);
                 if (moveableCoords.Contains(ptrCoord))
@@ -304,7 +296,7 @@ public class MapGenerator : MonoBehaviour
                     checkCoord = new Coord(checkCoord.x - 1, checkCoord.y);
                     k++;
                 }
-                int moveDistance = Random.Range(1, k);
+                int moveDistance = seed.Next(1, k);
                 Coord ptrCoord = new Coord(startCoord.x - moveDistance, startCoord.y);
                 Coord ptrLeft = new Coord(ptrCoord.x - 1, ptrCoord.y);
                 if (moveableCoords.Contains(ptrCoord))
@@ -362,7 +354,7 @@ public class MapGenerator : MonoBehaviour
                 }
             }
         }
-
+        return mapObject;
     }
     public bool IsPassed(Coord passedTile)
     {
