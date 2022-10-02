@@ -1,4 +1,4 @@
-using System.Collections;
+/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,10 +8,10 @@ public class MapGenerator : MonoBehaviour
     private int moveCount;
     private Vector2 mapSize;
 
-    List<Coord> moveableCoords = new List<Coord>();
+    List<Coord> moveableCoords;
     List<Coord> allTileCoords;
     List<Coord> keyTiles;
-    public Transform GenerateMap(System.Random seed, Transform tilePrefab, Transform obstaclePrefab, Transform boundryPrefab, Transform playerPrefab, int levelNumber)
+    public void GenerateMap(System.Random seed, Transform tilePrefab, Transform obstaclePrefab, Transform boundryPrefab, Transform playerPrefab, int levelNumber)
     {
         mapSize.x = seed.Next(10, levelNumber + 10 - 1);
         mapSize.y = seed.Next(10, levelNumber + 10 - 1);
@@ -354,7 +354,6 @@ public class MapGenerator : MonoBehaviour
                 }
             }
         }
-        return mapObject;
     }
     public bool IsPassed(Coord passedTile)
     {
@@ -377,4 +376,4 @@ public class MapGenerator : MonoBehaviour
             y = _y;
         }
     }
-}
+}*/
