@@ -6,7 +6,7 @@ using UnityEngine;
 public class MapGenerator : MonoBehaviour
 {
     private int moveCount;
-    private Vector2 mapSize;
+    public Vector2 mapSize;
     public int _seed = 0;
 
     List<Coord> moveableCoords = new List<Coord>();
