@@ -17,7 +17,12 @@ public class GameManager : MonoBehaviour
     }
     void Update()
     {
-        
+        if (CheckCompletion())
+        {
+            Debug.Log("Tebrikler");
+            DestroyImmediate(GameObject.Find("Map").gameObject);
+            canvas.SetActive(true);
+        }
     }
     public void SetLevel()
     {
@@ -27,5 +32,25 @@ public class GameManager : MonoBehaviour
         GameObject mapObject = new GameObject("Map");
         mapObject.AddComponent<MapGenerator>();
         mapObject.GetComponent<MapGenerator>().GenerateMap(tilePrefab, obstaclePrefab, boundryPrefab, playerPrefab, _levelNumber);
+    }
+    public bool CheckCompletion()
+    {
+        int x = 0;
+        if (GameObject.Find("Tiles"))
+        {
+            GameObject _tiles = GameObject.Find("Tiles");
+            for(int i = 0; i < _tiles.transform.childCount; i++)
+            {
+                if(_tiles.transform.GetChild(i).GetComponent<GroundTile>().isColored == true)
+                {
+                    x++;
+                }
+            }
+            if(x == _tiles.transform.childCount)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

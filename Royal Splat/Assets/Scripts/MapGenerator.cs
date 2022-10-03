@@ -55,10 +55,6 @@ public class MapGenerator : MonoBehaviour
             {
                 for (int y = 0; y < mapSize.y; y++)
                 {
-                    Vector3 tilePosition = new Vector3(-mapSize.x / 2 + 0.5f + x, 0, -mapSize.y / 2 + 0.5f + y);
-                    Transform newTile = Instantiate(tilePrefab, tilePosition, Quaternion.Euler(Vector3.right * 90)) as Transform;
-                    newTile.name = "Tile (" + x + "," + y + ")";
-                    newTile.parent = tileHolder;
                     //obstacles for out of bounds
                     if (x == 0)
                     {
@@ -356,6 +352,13 @@ public class MapGenerator : MonoBehaviour
                         Transform newObstacle = Instantiate(obstaclePrefab, obstaclePosition + Vector3.up * .5f, Quaternion.identity) as Transform;
                         newObstacle.parent = obstacleHolder;
                         newObstacle.name = "Obstacle (" + x + "," + y + ")";
+                    }
+                    else
+                    {
+                        Vector3 tilePosition = new Vector3(-mapSize.x / 2 + 0.5f + x, 0, -mapSize.y / 2 + 0.5f + y);
+                        Transform newTile = Instantiate(tilePrefab, tilePosition, Quaternion.Euler(Vector3.right * 90)) as Transform;
+                        newTile.name = "Tile (" + x + "," + y + ")";
+                        newTile.parent = tileHolder;
                     }
                 }
             }
